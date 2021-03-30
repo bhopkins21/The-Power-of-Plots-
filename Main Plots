@@ -141,3 +141,29 @@ ConversionError                           Traceback (most recent call last)
 ~/anaconda3/lib/python3.7/site-packages/matplotlib/pyplot.py in xticks(ticks, labels, **kwargs)
    1535         labels = ax.get_xticklabels()
    1536     else:
+-> 1537         locs = ax.set_xticks(ticks)
+   1538         labels = ax.set_xticklabels(labels, **kwargs)
+   1539     for l in labels:
+
+~/anaconda3/lib/python3.7/site-packages/matplotlib/axes/_base.py in set_xticks(self, ticks, minor)
+   3343             Default is ``False``.
+   3344         """
+-> 3345         ret = self.xaxis.set_ticks(ticks, minor=minor)
+   3346         self.stale = True
+   3347         return ret
+
+~/anaconda3/lib/python3.7/site-packages/matplotlib/axis.py in set_ticks(self, ticks, minor)
+   1750         """
+   1751         # XXX if the user changes units, the information will be lost here
+-> 1752         ticks = self.convert_units(ticks)
+   1753         if len(ticks) > 1:
+   1754             xleft, xright = self.get_view_interval()
+
+~/anaconda3/lib/python3.7/site-packages/matplotlib/axis.py in convert_units(self, x)
+   1552         except Exception as e:
+   1553             raise munits.ConversionError('Failed to convert value(s) to axis '
+-> 1554                                          f'units: {x!r}') from e
+   1555         return ret
+   1556 
+
+ConversionError: Failed to convert value(s) to axis units: ['Capomulin', 'Ceftamin', 'Infubinol', 'Ketapril', 'Naftisol', 'Placebo', 'Propriva', 'Ramicane', 'Stelasyn', 'Zoniferol']
