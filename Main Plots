@@ -1,0 +1,143 @@
+Observations and Insights
+Dependencies and starter code
+In [1]:
+# Dependencies and Setup
+import matplotlib.pyplot as plt
+import pandas as pd
+import scipy.stats as st
+import pandas as pd
+import scipy.stats as sts
+import numpy as np
+from scipy.stats import linregress
+from sklearn import datasets
+%matplotlib notebook
+%matplotlib inline
+from pandas.plotting import table
+
+
+# Study data files
+mouse_metadata = "data/Mouse_metadata.csv"
+study_results = "data/Study_results.csv"
+
+# Read the mouse data and the study results
+mouse_metadata = pd.read_csv(mouse_metadata)
+study_results = pd.read_csv(study_results)
+In [2]:
+# Combine the data into a single data
+In [2]:
+# Combine the data into a single dataset using an inner joint
+merge_table = pd.merge(mouse_metadata, study_results, on="Mouse ID", how="left")
+merge_table.head()
+Out[2]:
+Mouse ID	Drug Regimen	Sex	Age_months	Weight (g)	Timepoint	Tumor Volume (mm3)	Metastatic Sites
+0	k403	Ramicane	Male	21	16	0	45.000000	0
+1	k403	Ramicane	Male	21	16	5	38.825898	0
+2	k403	Ramicane	Male	21	16	10	35.014271	1
+3	k403	Ramicane	Male	21	16	15	34.223992	1
+4	k403	Ramicane	Male	21	16	20	32.997729	1
+Summary statistics
+In [3]:
+# Generate a summary statistics table of mean, median, variance, standard deviation, and SEM of the tumor volume for each regimen
+mean = merge_table.groupby('Drug Regimen')['Tumor Volume (mm3)'].mean()
+median = merge_table.groupby('Drug Regimen')['Tumor Volume (mm3)'].median()
+variance = merge_table.groupby('Drug Regimen')['Tumor Volume (mm3)'].var()
+stdv = merge_table.groupby('Drug Regimen')['Tumor Volume (mm3)'].std()
+sem = merge_table.groupby('Drug Regimen')['Tumor Volume (mm3)'].sem()
+summary_df = pd.DataFrame({"Mean": mean, "Median": median, "Variance": variance, "Standard Deviation": stdv, 
+                          "SEM": sem})
+summary_df
+Out[3]:
+Mean	Median	Variance	Standard Deviation	SEM
+Drug Regimen					
+Capomulin	40.675741	41.557809	24.947764	4.994774	0.329346
+Ceftamin	52.591172	51.776157	39.290177	6.268188	0.469821
+Infubinol	52.884795	51.820584	43.128684	6.567243	0.492236
+Ketapril	55.235638	53.698743	68.553577	8.279709	0.603860
+Naftisol	54.331565	52.509285	66.173479	8.134708	0.596466
+Placebo	54.033581	52.288934	61.168083	7.821003	0.581331
+Propriva	52.322552	50.854632	42.351070	6.507770	0.512884
+Ramicane	40.216745	40.673236	23.486704	4.846308	0.320955
+Stelasyn	54.233149	52.431737	59.450562	7.710419	0.573111
+Zoniferol	53.236507	51.818479	48.533355	6.966589	0.516398
+Bar plots
+In [4]:
+# Generate a bar plot showing number of data points for each treatment regimen using pandas
+grouped_df = pd.DataFrame(merge_table.groupby(["Drug Regimen"]).count()).reset_index()
+# Filter the DataFrame down only to those columns to chart
+regimen_datapoints = grouped_df[["Drug Regimen","Mouse ID"]]
+regimen_datapoints = regimen_datapoints.rename(columns={"Mouse ID": "Count"})
+# Set the index to be "Drug Regimen" so they will be used as labels
+regimen_datapoints = regimen_datapoints.set_index("Drug Regimen")
+In [5]:
+# Use DataFrame.plot() in order to create a bar chart of the data
+regimen_datapoints.plot(kind="bar", figsize=(10,3))
+
+# Set a title for the chart
+plt.title("Count per Drug Regimen")
+
+plt.show()
+plt.tight_layout()
+
+BAR Plot using pyplot
+In [6]:
+import matplotlib.pyplot as plt
+
+# Generate a bar plot showing number of data points for each treatment regimen using pyplot
+# select column to convert to list here
+drug_regimens = summary_df.index.tolist()
+drug_regimens
+Out[6]:
+['Capomulin',
+ 'Ceftamin',
+ 'Infubinol',
+ 'Ketapril',
+ 'Naftisol',
+ 'Placebo',
+ 'Propriva',
+ 'Ramicane',
+ 'Stelasyn',
+ 'Zoniferol']
+In [7]:
+# Convert regimen count into a list
+regimen_count = (merge_table.groupby(["Drug Regimen"])["Age_months"].count()).tolist()
+regimen_count
+Out[7]:
+[230, 178, 178, 188, 186, 181, 161, 228, 181, 182]
+In [8]:
+x_axis = np.arange(len(regimen_count))
+In [9]:
+# Define x-axis
+x_axis = drug_regimens
+# Create a bar chart based upon the above data
+plt.figure(figsize=(10,4))
+plt.bar(x_axis, regimen_count, color='b', alpha=0.5, align="center")
+Out[9]:
+<BarContainer object of 10 artists>
+# Create the ticks for our bar chart's x axis
+tick_locations = [value for value in x_axis]
+plt.xticks(tick_locations, drug_regimens)
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+~/anaconda3/lib/python3.7/site-packages/matplotlib/axis.py in convert_units(self, x)
+   1550         try:
+-> 1551             ret = self.converter.convert(x, self.units, self)
+   1552         except Exception as e:
+
+~/anaconda3/lib/python3.7/site-packages/matplotlib/category.py in convert(value, unit, axis)
+     51             raise ValueError(
+---> 52                 'Missing category information for StrCategoryConverter; '
+     53                 'this might be caused by unintendedly mixing categorical and '
+
+ValueError: Missing category information for StrCategoryConverter; this might be caused by unintendedly mixing categorical and numeric data
+
+The above exception was the direct cause of the following exception:
+
+ConversionError                           Traceback (most recent call last)
+<ipython-input-10-cc6f013540a4> in <module>
+      1 # Create the ticks for our bar chart's x axis
+      2 tick_locations = [value for value in x_axis]
+----> 3 plt.xticks(tick_locations, drug_regimens)
+
+~/anaconda3/lib/python3.7/site-packages/matplotlib/pyplot.py in xticks(ticks, labels, **kwargs)
+   1535         labels = ax.get_xticklabels()
+   1536     else:
